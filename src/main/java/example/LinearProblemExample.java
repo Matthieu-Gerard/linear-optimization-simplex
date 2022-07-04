@@ -1,21 +1,19 @@
-
-// https://openclassrooms.com/fr/courses/6100311-testez-votre-code-java-pour-realiser-des-applications-de-qualite/6465561-structurez-vos-tests-unitaires-avec-les-annotations-junit
+package example;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-import model.ElementMatrix;
 import model.LinearProblem;
 import model.Variable;
+import model.matrix.ElementMatrix;
 
-public class LinearProblemTests {
+public class LinearProblemExample {
 
 	public static void main(String args) {
 		try                 { test1();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
 
-		/*
 		try                 { test2();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
@@ -47,7 +45,6 @@ public class LinearProblemTests {
 //		try                 { randomTest( 10000 , 1000 , 1 ); }
 //		catch (Exception e) { e.printStackTrace(); }
 //		System.out.println("--------------------------------");
- * */
 	}
 
 	public static void test(LinearProblem lp) {
@@ -85,7 +82,6 @@ public class LinearProblemTests {
 
 		lp.addLinearObjectif(new double[] {1,1,1}, new Variable[] {variable[0] , variable[1], variable[2]});
 		lp.setMaximizeObjective();
-
 
 		//        double[][] A = {
 		//            { -1,  1,  0 },
@@ -287,8 +283,6 @@ public class LinearProblemTests {
 	public static void randomTest(int M, int N, int seed) {
 
 		Random rand1 = new Random(seed);
-		Random rand2 = new Random(seed+1); 
-
 		LinearProblem lp = new LinearProblem();
 
 		Variable[] variable = new Variable[N];
@@ -319,7 +313,7 @@ public class LinearProblemTests {
 			int index = 0;
 			for(ElementMatrix element : line) {
 				listCoefficients[index] = element.getValue();
-				listVariables[index] = variable[element.getColumn()];
+				listVariables[index] = variable[element.getColumnIndex()];
 				index ++;
 			}
 
@@ -333,5 +327,4 @@ public class LinearProblemTests {
 
 		test(lp);        
 	}
-
 }

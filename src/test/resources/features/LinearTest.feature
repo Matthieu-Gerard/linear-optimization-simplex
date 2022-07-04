@@ -1,6 +1,6 @@
 Feature: Tests basiques d'affectation automatique avec une ressource, deux activités chacune avec un besoin à couvrir durant une journée.
 
-  Scenario: simple instance with 3 variables et 5 constraints.
+  Scenario: cas très simple avec 3 variables et 5 constraints.
     Given I have 3 variables and 5 constraints.
     And The cost values :
       | vector C      |
@@ -12,14 +12,14 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | 2.0,  1.0,  0.0 | 27.0           |
       | 3.0, -4.0,  0.0 | 24.0           |
       | 0.0,  0.0,  1.0 | 4.0            |
-    And The Bland column selection strategy.
+   	And The Bland column selection strategy.
     When I execute Simplex method.
     Then Optimal solution is found.
     And Found solution is :
       | vector X      | solutionCost |
       | 9.0, 9.0, 4.0 | 22.0         |
 
-  Scenario: simple instance with 2 variables et 3 constraints.
+  Scenario: cas très simple avec 2 variables et 3 constraints.
     Given I have 2 variables and 3 constraints.
     And The cost values :
       | vector C    |
@@ -33,10 +33,10 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
     When I execute Simplex method.
     Then Optimal solution is found.
     And Found solution is :
-      | vector X   | solutionCost |
+      | vector X | solutionCost |
       | 12.0, 28.0 | 800.0        |
 
-  Scenario: unbounded problem.
+  Scenario: problème non borné.
     Given I have 4 variables and 2 constraints.
     And The cost values :
       | vector C              |
@@ -49,7 +49,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
     When I execute Simplex method.
     Then Linear problem is unbounded.
 
-  Scenario: degenerate test with 4 variables and 3 constraints - cycle (=infinite loop) if you choose most positive objective function coefficient using Dantzig column selection strategy.
+  Scenario: degenerate test with 4 variables and 3 constraints - cycle (infinite loop) if you choose most positive objective function coefficient using Dantzig column selection strategy.
     Given I have 4 variables and 3 constraints.
     And The cost values :
       | vector C                 |
@@ -66,7 +66,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X           | solutionCost |
       | 1.0, 0.0, 1.0, 0.0 | 1.0          |
 
-  Scenario: simple test with 2 variables and 2 constraints and a negative maximum value.
+  Scenario: test with 2 variables and 2 constraints and negative coefficients.
     Given I have 2 variables and 2 constraints.
     And The cost values :
       | vector C  |

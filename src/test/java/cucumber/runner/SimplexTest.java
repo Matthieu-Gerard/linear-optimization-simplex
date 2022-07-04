@@ -7,6 +7,6 @@ import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "classpath:features/SimplexTest.feature", plugin = { "pretty",
-        "html:target/html-cucumber-report" }, glue = { "cucumber" })
+        "html:target/html-cucumber-report" }, glue = { "../steps" })
 public class SimplexTest {
 }

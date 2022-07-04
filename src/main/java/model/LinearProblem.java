@@ -2,7 +2,10 @@ package model;
 
 import java.util.ArrayList;
 
-import service.SimplexService;
+import analyser.SimplexSolverAnalyser;
+import model.matrix.ElementMatrix;
+import model.matrix.SparseMatrix;
+import service.SimplexSolverService;
 
 public class LinearProblem {
 
@@ -18,7 +21,7 @@ public class LinearProblem {
 	ArrayList<Variable> listArtificialVariables = null;
 	ArrayList<ElementMatrix> listArtificialLocation = null;
 
-	private SimplexService simplex = null;
+	private SimplexSolverService simplex = null;
 
 	public LinearProblem() {
 		matrixA = new SparseMatrix();
@@ -36,7 +39,7 @@ public class LinearProblem {
 	 */
 	public void addLinearConstraintLeq( double[] fValue , Variable[] variable , double boundMax ) {
 
-		int indexLine = matrixA.getNbLines();
+		int indexLine = matrixA.getNumberofLines();
 		
 		ArrayList<ElementMatrix> line = new ArrayList<ElementMatrix>();
 		for (int i=0 ; i<fValue.length ; i++) {
@@ -103,7 +106,7 @@ public class LinearProblem {
 		//
 		// this function is based on the equivalence -ax <= -b  <=>  ax >= b
 		//
-		int indexLine = matrixA.getNbLines();
+		int indexLine = matrixA.getNumberofLines();
 		//
 		// on crée la nouvelle variable pour avoir un degré de liberté
 		//
@@ -149,7 +152,7 @@ public class LinearProblem {
 		//
 		// this function is based on the equivalence -ax <= -b  <=>  ax >= b
 		//
-		int indexLine = matrixA.getNbLines();
+		int indexLine = matrixA.getNumberofLines();
 		//
 		// on crée une nouvelle variable avec un fort coefficient négatif
 		//
@@ -187,7 +190,7 @@ public class LinearProblem {
 		}
 		for (int index=0 ; index<listArtificialVariables.size() ; index++) {
 			Variable var = listArtificialVariables.get(index);
-			vectorC[ var.getIndex() ] = -SimplexService.BIG_M;
+			vectorC[ var.getIndex() ] = -ToleranceConstants.BIG_M;
 		}
 	}
 
@@ -199,18 +202,18 @@ public class LinearProblem {
 			}
 		}
 		
-		double[] b = new double[matrixA.getNbLines()];
-		for (int i=0 ; i<matrixA.getNbLines() ; i++) {
+		double[] b = new double[matrixA.getNumberofLines()];
+		for (int i=0 ; i<matrixA.getNumberofLines() ; i++) {
 			b[i] = vectorB.get(i);
 		}
-		simplex = new SimplexService(matrixA, b, vectorC, listArtificialLocation);
+		simplex = new SimplexSolverService(matrixA, b, vectorC, listArtificialLocation);
 
 		try {
             simplex.solve();
         } catch (Exception e) {
             e.printStackTrace();
         }
-		System.out.println("variable artificial = "+simplex.getPrimalValue(listArtificialVariables.get(0).getIndex()));
+		System.out.println("variable artificial = "+simplex.primalValues(listArtificialVariables.get(0).getIndex()));
 	}
 
 	public Variable newVariable(String nom) {
@@ -223,19 +226,21 @@ public class LinearProblem {
 
 	public boolean checkOptimality() {
 
-		double[] b = new double[matrixA.getNbLines()];
-		for (int i=0 ; i<matrixA.getNbLines() ; i++) {
+		double[] b = new double[matrixA.getNumberofLines()];
+		for (int i=0 ; i<matrixA.getNumberofLines() ; i++) {
 			b[i] = vectorB.get(i);
 		}
-		return simplex.checkSolution(matrixA, b, vectorC);
+		
+		SimplexSolverAnalyser analyser = new SimplexSolverAnalyser(simplex);
+		return analyser.checkSolution();
 	}
 
 	public double getValue(Variable variable) {
-		return simplex.getPrimalValue(variable.getIndex());
+		return simplex.primalValues(variable.getIndex());
 	}
 
 	public double getObjectiveValue() {
-		return simplex.value();
+		return simplex.costFunctionvalue();
 	}
 
 	public ArrayList<Variable> getListVariables() {

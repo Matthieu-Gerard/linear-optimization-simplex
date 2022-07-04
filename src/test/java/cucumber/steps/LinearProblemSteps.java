@@ -1,52 +1,44 @@
 package cucumber.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import analyser.SimplexSolverAnalyser;
-import cucumber.model.ConstraintLeqParameters;
-import cucumber.model.CostsParameters;
-import cucumber.model.SolutionParameters;
-import exception.UnboundedLinearProblemException;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
-import model.ToleranceConstants;
-import model.matrix.ElementMatrix;
-import model.matrix.SparseMatrix;
-import service.SimplexSolverService;
-import service.columnselection.BlandColumnSelection;
-import service.columnselection.DantzigColumnSelection;
-
-public class SimplexTestSteps {
+/*
+// FIXME : do not add element with value 0.
+public class LinearProblemSteps {
     
     int numberOfVariables;
     int numberOfConstraints;
     
+    LinearProblem linearProblem;
+    Variable[] variables;
+    
+    
     SparseMatrix matrixA;
     double[] vectorB;
-    double[] vectorC;
     
-    SimplexSolverService simplexSolver;
     boolean isUnboundedLinearProblem = false;
     
-    @Given("^I have (-?\\d+) variables and (-?\\d+) constraints.$")
+    @Given("^The linear problem have (-?\\d+) variables and (-?\\d+) constraints.$")
     public void definition(int numberOfVariables, int numberOfConstraints) throws Throwable {
         this.numberOfVariables = numberOfVariables;
         this.numberOfConstraints = numberOfConstraints;
+        
+        this.linearProblem = new LinearProblem();
+        this.variables = new Variable[this.numberOfVariables];
+        for(int variableIndex=0 ; variableIndex<this.numberOfVariables ; variableIndex++) {
+            this.variables[variableIndex] = this.linearProblem.newVariable("x_"+variableIndex);
+        }
+        
         this.vectorB = new double[this.numberOfConstraints];
     }
     
-    @Given("^The cost values :$")
+    @Given("^The linear cost values are:$")
     public void given_the_cost_values(List<CostsParameters> vectorCParameters)
             throws Exception {
-        vectorC = vectorCParameters.get(0).getVectorC();
-        assertEquals(numberOfVariables, vectorC.length);
+        double[] costs = vectorCParameters.get(0).getVectorC();
+        assertEquals(numberOfVariables, costs.length);
+        this.linearProblem.addLinearObjectif(costs, variables);
     }
     
-    @Given("^The constraints :$")
+    @Given("^The linear constraints are:$")
     public void given_the_constraints(List<ConstraintLeqParameters> constraintCParameters)
             throws Exception {
         
@@ -79,20 +71,20 @@ public class SimplexTestSteps {
 
     @Given("^The Bland column selection strategy.$")
     public void given_the_bland_column_strategy() {
-        this.simplexSolver = new SimplexSolverService(matrixA, vectorB, vectorC, null);
-        this.simplexSolver.setColumnSelection(new BlandColumnSelection());
+        this.simplexService = new SimplexSolverService(matrixA, vectorB, vectorC, null);
+        this.simplexService.setColumnSelection(new BlandColumnSelection());
     }
     
     @Given("^The Dantzig column selection strategy.$")
     public void given_the_dantzig_column_strategy() {
-        this.simplexSolver = new SimplexSolverService(matrixA, vectorB, vectorC, null);
-        this.simplexSolver.setColumnSelection(new DantzigColumnSelection());
+        this.simplexService = new SimplexSolverService(matrixA, vectorB, vectorC, null);
+        this.simplexService.setColumnSelection(new DantzigColumnSelection());
     }
     
     @When("^I execute Simplex method.$")
     public void when_Simplex_algorithm_is_executed() {
         try {
-            simplexSolver.solve();
+            simplexService.solve();
         }
         catch (UnboundedLinearProblemException e) {
             this.isUnboundedLinearProblem = true;
@@ -109,15 +101,13 @@ public class SimplexTestSteps {
     
     @Then("^Optimal solution is found.$")
     public void solution_is_optimal() {
-        SimplexSolverAnalyser simplexSolverAnalyser = new SimplexSolverAnalyser(this.simplexSolver);
-        boolean status = simplexSolverAnalyser.checkSolution();
+        boolean status = this.simplexService.checkSolution(matrixA, vectorB, vectorC);
         assertEquals(true, status);
     }
     
     @Then("^Solution is not optimal.$")
     public void solution_is_not_optimal() {
-        SimplexSolverAnalyser simplexSolverAnalyser = new SimplexSolverAnalyser(this.simplexSolver);
-        boolean status = simplexSolverAnalyser.checkSolution();
+        boolean status = this.simplexService.checkSolution(matrixA, vectorB, vectorC);
         assertEquals(false, status);
     }
     
@@ -125,12 +115,12 @@ public class SimplexTestSteps {
     public void found_solution_is(List<SolutionParameters> solutionParameters) {
         
         double solutionCost = solutionParameters.get(0).getSolutionCost();
-        assertEquals(solutionCost, this.simplexSolver.costFunctionvalue(), ToleranceConstants.EPSILON);
+        assertEquals(solutionCost, this.simplexService.value(), ToleranceConstants.EPSILON);
         
         double[] expectedVectorX = solutionParameters.get(0).getvectorX();
         assertEquals(this.numberOfVariables, expectedVectorX.length);
         
-        double[] vectorX = this.simplexSolver.primalValues();
+        double[] vectorX = this.simplexService.primal();
         
         for (int indexOfVariable=0 ; indexOfVariable<this.numberOfVariables ; indexOfVariable++) {
             assertEquals(expectedVectorX[indexOfVariable], vectorX[indexOfVariable], ToleranceConstants.EPSILON);
@@ -138,3 +128,4 @@ public class SimplexTestSteps {
         }
     }
 }
+*/
