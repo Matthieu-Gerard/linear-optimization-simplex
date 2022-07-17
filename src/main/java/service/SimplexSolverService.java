@@ -45,7 +45,7 @@ public class SimplexSolverService {
 	 * It contains 2 matrices, 2 vectors and the value of the cost function. 
 	 * 
 	 * (1) Matrix [1 ... M][1 ... N] represents the basis variables (initially matrix A).
-	 * (2) Matrix [M ... 2M][1 ... M] represents the out-basis variables (initially Identity matrix).
+	 * (2) Matrix [M ... 2M][1 ... M] represents the out-basis slack variables (initially Identity matrix).
 	 * (3) Vector [M][1 ... N] represents the reduced costs (initially vector b).
 	 * (4) last line [M][1 ... N+M] represents the introduction costs (initially vector c).
 	 * (5) Cell [M+1][N+M+1] represents the current value of the cost function that we try to minimize.
@@ -70,7 +70,7 @@ public class SimplexSolverService {
 	 * @param b second member of equation
 	 * @param c cost
 	 */
-	public SimplexSolverService(SparseMatrix A, double[] b, double[] c, ArrayList<ElementMatrix> artificialVariable) {
+	public SimplexSolverService(SparseMatrix A, double[] b, double[] c, ArrayList<ElementMatrix> artificialVariables) {
 
 		numberOfConstraints = b.length;
 		numberOfVariables = c.length;
@@ -90,7 +90,7 @@ public class SimplexSolverService {
 		}
 		// Copy of identity matrix (=slack variables design)
 		for (int i = 0; i < numberOfConstraints; i++) {
-			tableau.add(new ElementMatrix(i, numberOfVariables+i, 1.0));
+		        tableau.add(new ElementMatrix(i, numberOfVariables+i, +1.0));    
 			//        	a[i][N+i] = 1.0;
 		}
 		// Copy of vector c.
@@ -99,45 +99,54 @@ public class SimplexSolverService {
 			listCosts.add(new ElementMatrix(numberOfConstraints, j, c[j]));
 			//        	a[M][j]   = c[j];
 		}
+		
 		listCosts.add(new ElementMatrix(numberOfConstraints,numberOfConstraints+numberOfVariables,0.0D));
 		tableau.addLine(listCosts);
 
-		// Copy of vector b.
-		for (int i = 0; i < numberOfConstraints; i++) {
-			tableau.add(new ElementMatrix(i, numberOfConstraints+numberOfVariables, b[i]));
-			//        	a[i][M+N] = b[i];
-		}
-
-		// Variables initialization in base (=slack variables).
+		// Variables initialization in base (= slack variables).
 		variablesEnBase = new int[numberOfConstraints];
 		for (int i = 0; i < numberOfConstraints; i++) {
 			variablesEnBase[i] = numberOfVariables + i;
 		}
 
 		// Add artificial variables to deal with "equality" and "greater than" constraints.
-		if (artificialVariable!=null)
-		for (ElementMatrix artificialElement : artificialVariable) {
-			int ligne = artificialElement.getLineIndex();
-			for (ElementMatrix elementInContrainte : tableau.getLine(ligne)) {
-				
-				int colonne = elementInContrainte.getColumnIndex();
-				if (colonne<numberOfVariables || colonne==numberOfConstraints+numberOfVariables) {
-					
-					ElementMatrix elementLigneCost = tableau.getElementMatrix(numberOfConstraints,colonne);
-					double value = elementLigneCost.getValue()+ToleranceConstants.BIG_M*elementInContrainte.getValue();
-					elementLigneCost.setValue(value);
-				}
-			}
-		}
+		int numberOfArtificialsVariables = 0;
+		/*
+		if (artificialVariables!=null) {
+		    numberOfArtificialsVariables = artificialVariables.size();
+		    for (ElementMatrix artificialElement : artificialVariables) {
+		        int ligne = artificialElement.getLineIndex();
+		        for (ElementMatrix elementInContrainte : tableau.getLine(ligne)) {
+
+		            int colonne = elementInContrainte.getColumnIndex();
+		            if (colonne<numberOfVariables || colonne==numberOfConstraints+numberOfVariables) {
+
+		                ElementMatrix elementLigneCost = tableau.getElementMatrix(numberOfConstraints,colonne);
+		                double value = elementLigneCost.getValue()+ToleranceConstants.BIG_M*elementInContrainte.getValue();
+		                elementLigneCost.setValue(value);
+		            }
+		        }
+		    }
+		}*/
+		
+	    // Copy of vector b.
+        int shiftIndex = numberOfConstraints+numberOfVariables+numberOfArtificialsVariables;
+        for (int i = 0; i < b.length; i++) {
+            tableau.add(new ElementMatrix(i, shiftIndex, b[i]));
+            //          a[i][M+N] = b[i];
+        }
+		
 		initialObjectiveValue = costFunctionvalue();
+		
 	}
 
 	/**
 	 * Execute the Simplex from a feasible solution (BFS: basic feasible solution).
 	 */
-	public void solve() throws Exception {
+	public void solve() throws UnboundedLinearProblemException {
 
 		while (true) {
+		    
 			// Search of the column / variable that goes in the base.
 			int q = columnSelection.getColumnIndex(tableau,numberOfVariables,numberOfConstraints);
 			// If no found column, then solution is optimal and we stop the algorithm.
@@ -203,8 +212,6 @@ public class SimplexSolverService {
 					if (A_i_MplusN!=null) {
 						value_i_MplusN = A_i_MplusN.getValue();
 					}
-
-
 					if ( (value_i_MplusN/A_i_q.getValue()) < (value_p_MplusN/A_p_q.getValue()) ) { 
 						p = A_i_q;
 					}
@@ -232,7 +239,6 @@ public class SimplexSolverService {
 			if (A_line_q!=null) {
 				for (int j = 0; j <= numberOfConstraints + numberOfVariables; j++) {
 					if (i != p && j != q) {
-						
 						ElementMatrix A_p_j = tableau.getElementMatrix( p , j );
 						if (A_p_j!=null) {
 							ElementMatrix A_i_j = tableau.getElementMatrix( i , j );
@@ -430,5 +436,30 @@ public class SimplexSolverService {
 
     public void setTableau(SparseMatrix tableau) {
         this.tableau = tableau;
+    }
+    
+    // print tableaux
+    public void printTableau() {
+        System.out.println("M = " + getNumberOfConstraints());
+        System.out.println("N = " + getNumberOfVariables());
+        for (int i = 0; i <= getNumberOfConstraints(); i++) {
+            for (int j = 0; j <= getNumberOfConstraints() + getNumberOfVariables(); j++) {
+                ElementMatrix A_i_j = getTableau().getElementMatrix(i, j);
+                if (A_i_j==null) {
+                    System.out.printf("%7.1f ", 0.0);
+                } else {
+                    System.out.printf("%7.2f ", A_i_j.getValue());
+                }
+                //              System.out.printf("%7.2f ", a[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.println("value = " + costFunctionvalue());
+//      for (int i = 0; i < M; i++)
+//          if (variablesEnBase[i] < N) {
+//              System.out.println("x_" + variablesEnBase[i] + " = " + a.getLastElementMatrixOfLine(i).getValue());
+//              //              System.out.println("x_" + variablesEnBase[i] + " = " + a[i][M+N]);
+//          }
+//      System.out.println();
     }
 }

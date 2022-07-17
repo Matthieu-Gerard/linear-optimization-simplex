@@ -28,6 +28,7 @@ public class SimplexSolverAnalyser {
         
         SparseMatrix A = simplex.getMatrixA(); 
         double[] b = simplex.getVectorB();
+        double[] c = simplex.getCosts();
         double[] x = simplex.primalValues();
         
         // check that x >= 0.

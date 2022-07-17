@@ -9,11 +9,12 @@ import model.matrix.ElementMatrix;
 
 public class LinearProblemExample {
 
-	public static void main(String args) {
-		try                 { test1();             }
+	public static void main(String[] args) {
+		try                 { test5();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
 
+		/*
 		try                 { test2();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
@@ -41,7 +42,7 @@ public class LinearProblemExample {
 		try                 { test8();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
-
+    */
 //		try                 { randomTest( 10000 , 1000 , 1 ); }
 //		catch (Exception e) { e.printStackTrace(); }
 //		System.out.println("--------------------------------");
@@ -187,7 +188,7 @@ public class LinearProblemExample {
 		}
 		
 		lp.addLinearConstraintLeq(new double[] {1.0,1.0}, 	new Variable[] {variable[0] , variable[1]} , 1.0);
-		lp.addLinearConstraintGeq(new double[] {1.0}, 		new Variable[] {variable[0]} , 1.0);
+		lp.addLinearConstraintLeq(new double[] {-1.0}, 		new Variable[] {variable[0]} , -1.0);
 		
 		lp.addLinearObjectif(new double[] {1.0,4.0}, new Variable[] {variable[0] , variable[1]});
 		lp.setMaximizeObjective();

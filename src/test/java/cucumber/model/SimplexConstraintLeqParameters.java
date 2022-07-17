@@ -1,14 +1,14 @@
 package cucumber.model;
 
-public class ConstraintLeqParameters {
+public class SimplexConstraintLeqParameters {
     
     double[] coefficients;
     double maximumValue;
     
-    public ConstraintLeqParameters() {
+    public SimplexConstraintLeqParameters() {
     }
     
-    public ConstraintLeqParameters(double[] coefficientIndexedByVariable, double secondMemberB) {
+    public SimplexConstraintLeqParameters(double[] coefficientIndexedByVariable, double secondMemberB) {
         super();
         this.coefficients = coefficientIndexedByVariable;
         this.maximumValue = secondMemberB;

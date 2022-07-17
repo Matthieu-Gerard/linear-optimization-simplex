@@ -2,13 +2,13 @@ package cucumber.datatabletype;
 
 import java.util.Map;
 
-import cucumber.model.ConstraintLeqParameters;
+import cucumber.model.SimplexConstraintLeqParameters;
 import io.cucumber.java.DataTableType;
 
-public class ConstraintLeqParametersTableType {
+public class SimplexConstraintLeqParametersTableType {
 
     @DataTableType
-    public ConstraintLeqParameters schedulePrametersEntry(Map<String, String> entry) {
+    public SimplexConstraintLeqParameters schedulePrametersEntry(Map<String, String> entry) {
 
         double maximumValue = Double.parseDouble(entry.get("maximumValue B"));
         
@@ -20,7 +20,7 @@ public class ConstraintLeqParametersTableType {
                 coefficients[index] = Double.parseDouble(coefficientInstringFormat);
                 index ++;
             }
-            return new ConstraintLeqParameters(coefficients,maximumValue);
+            return new SimplexConstraintLeqParameters(coefficients,maximumValue);
         }
 
         return null;
