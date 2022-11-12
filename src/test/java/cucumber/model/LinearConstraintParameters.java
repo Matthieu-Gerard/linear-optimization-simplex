@@ -1,17 +1,17 @@
 package cucumber.model;
 
-import model.ConstraintTypeEnum;
+import model.constraint.LinearConstraintType;
 
 public class LinearConstraintParameters {
     
     double[] coefficients;
     double value;
-    ConstraintTypeEnum constraintType;
+    LinearConstraintType constraintType;
     
     public LinearConstraintParameters() {
     }
     
-    public LinearConstraintParameters(double[] coefficientIndexedByVariable, ConstraintTypeEnum constraintType, double value) {
+    public LinearConstraintParameters(double[] coefficientIndexedByVariable, LinearConstraintType constraintType, double value) {
         super();
         this.coefficients = coefficientIndexedByVariable;
         this.value = value;
@@ -34,11 +34,11 @@ public class LinearConstraintParameters {
         this.value = value;
     }
 
-    public ConstraintTypeEnum getConstraintType() {
+    public LinearConstraintType getConstraintType() {
         return constraintType;
     }
 
-    public void setConstraintType(ConstraintTypeEnum constraintType) {
+    public void setConstraintType(LinearConstraintType constraintType) {
         this.constraintType = constraintType;
     }
 }

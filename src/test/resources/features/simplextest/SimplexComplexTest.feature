@@ -1,7 +1,7 @@
 @SimplexTest
-Feature: Tests basiques d'affectation automatique avec une ressource, deux activités chacune avec un besoin à couvrir durant une journée.
+Feature: SimplexComplexTest
 
-  Scenario: simple instance with 3 variables et 5 constraints.
+  Scenario: A- SimplexComplexTest
     Given I have 3 variables and 5 constraints.
     And The cost values are:
       | vector C      |
@@ -20,7 +20,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X      | solutionCost |
       | 9.0, 9.0, 4.0 | 22.0         |
 
-  Scenario: simple instance with 2 variables et 3 constraints.
+  Scenario: B- SimplexComplexTest
     Given I have 2 variables and 3 constraints.
     And The cost values are:
       | vector C    |
@@ -37,7 +37,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X   | solutionCost |
       | 12.0, 28.0 | 800.0        |
 
-  Scenario: unbounded problem.
+  Scenario: C- SimplexComplexTest - unbounded problem.
     Given I have 4 variables and 2 constraints.
     And The cost values are:
       | vector C              |
@@ -50,7 +50,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
     When I execute Simplex method.
     Then Problem is unbounded.
 
-  Scenario: degenerate test with 4 variables and 3 constraints - cycle (=infinite loop) if you choose most positive objective function coefficient using Dantzig column selection strategy.
+  Scenario: D- SimplexComplexTest - degenerate test with 4 variables and 3 constraints with Dantzig column selection strategy.
     Given I have 4 variables and 3 constraints.
     And The cost values are:
       | vector C                 |
@@ -67,7 +67,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X           | solutionCost |
       | 1.0, 0.0, 1.0, 0.0 | 1.0          |
 
-  Scenario: simple test with 2 variables and 2 constraints and a negative maximum value.
+  Scenario: E- SimplexComplexTest
     Given I have 2 variables and 2 constraints.
     And The cost values are:
       | vector C  |

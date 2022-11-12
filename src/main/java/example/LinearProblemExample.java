@@ -3,8 +3,12 @@ package example;
 import java.util.ArrayList;
 import java.util.Random;
 
-import model.LinearProblem;
+import controller.Solver;
+import model.LinearModel;
+import model.Objective;
 import model.Variable;
+import model.constraint.LinearConstraintType;
+import model.constraint.LinearConstraint;
 import model.matrix.ElementMatrix;
 
 public class LinearProblemExample {
@@ -14,7 +18,7 @@ public class LinearProblemExample {
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
 
-		/*
+		/**/
 		try                 { test2();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
@@ -42,47 +46,59 @@ public class LinearProblemExample {
 		try                 { test8();             }
 		catch (Exception e) { e.printStackTrace(); }
 		System.out.println("--------------------------------");
-    */
-//		try                 { randomTest( 10000 , 1000 , 1 ); }
-//		catch (Exception e) { e.printStackTrace(); }
-//		System.out.println("--------------------------------");
+		/**/
+		try                 { randomTest( 10000 , 1000 , 1 ); }
+		catch (Exception e) { e.printStackTrace(); }
+		System.out.println("--------------------------------");
 	}
 
-	public static void test(LinearProblem lp) {
+	public static void test(LinearModel model) {
 
+	    Solver solver = new Solver(model);
+	    
 		long time1 = System.currentTimeMillis();
-		lp.solve();
+		solver.execute();
 		long time2 = System.currentTimeMillis();
 
-		System.out.println("optimality status = "+lp.checkOptimality());
-		System.out.println("value = " + lp.getObjectiveValue());
-		for (Variable variable : lp.getListVariables()) {
-			System.out.println(variable.getName() + " = " + lp.getValue(variable));
+		System.out.println("optimality status = "+solver.checkOptimality());
+		System.out.println("value = " + solver.getObjectiveValue());
+		
+		double[] x = solver.getPrimalSolution();
+		for (Variable variable : model.getListOfVariables()) {
+		    int index = variable.getIndex();
+			System.out.println(variable.getName() + " = " + x[index]);
 		}
 		//		double[] y = lp.dual();
 		//		for (int j = 0; j < y.length; j++) {
 		//			System.out.println("y[" + j + "] = " + y[j]);
 		//		}
-		System.out.println("temps d'exécution = "+(time2-time1));
+		System.out.println("execution time = "+(time2-time1)+" ms");
 	}
 
 	public static void test1() {
-
-		LinearProblem lp = new LinearProblem();
+	    
+	    System.out.println("test1");
+		LinearModel model = new LinearModel();
 
 		Variable[] variable = new Variable[3];
 		for (int iVariable=0 ; iVariable<3 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
+			variable[iVariable] = model.newVariable("x["+iVariable+"]");
 		}
 
-		lp.addLinearConstraintLeq(new double[] {-1,1}, 	new Variable[] {variable[0] , variable[1]}	, 5);
-		lp.addLinearConstraintLeq(new double[] {1,4}, 	new Variable[] {variable[0] , variable[1]}	, 45);
-		lp.addLinearConstraintLeq(new double[] {2,1}, 	new Variable[] {variable[0] , variable[1]}	, 27);
-		lp.addLinearConstraintLeq(new double[] {3,-4}, 	new Variable[] {variable[0] , variable[1]}	, 24);
-		lp.addLinearConstraintLeq(new double[] {1}, 	new Variable[] {variable[2]}				, 4);
+		LinearConstraint constraint1 = new LinearConstraint(new double[] {-1,1}, new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 5);
+        LinearConstraint constraint2 = new LinearConstraint(new double[] {1,4},  new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 45);
+        LinearConstraint constraint3 = new LinearConstraint(new double[] {2,1},  new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 27);
+        LinearConstraint constraint4 = new LinearConstraint(new double[] {3,-4}, new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 24);
+        LinearConstraint constraint5 = new LinearConstraint(new double[] {1},    new Variable[] {variable[2]}               , LinearConstraintType.LEQ , 4);
+		
+		model.addConstraint(constraint1);
+		model.addConstraint(constraint2);
+		model.addConstraint(constraint3);
+		model.addConstraint(constraint4);
+		model.addConstraint(constraint5);
 
-		lp.addLinearObjectif(new double[] {1,1,1}, new Variable[] {variable[0] , variable[1], variable[2]});
-		lp.setMaximizeObjective();
+		model.setListOfCosts(new double[] { 1.0 , 1.0, 1.0 });
+		model.setObjectif(Objective.MAXIMIZE);
 
 		//        double[][] A = {
 		//            { -1,  1,  0 },
@@ -93,26 +109,30 @@ public class LinearProblemExample {
 		//        };
 		//		double[] c = { 1, 1, 1 };
 		//		double[] b = { 5, 45, 27, 24, 4 };
-		test(lp);
+		test(model);
 	}
 
 
 	// x0 = 12, x1 = 28, opt = 800
 	public static void test2() {
+	    System.out.println("test2");
+	    LinearModel model = new LinearModel();
 
-		LinearProblem lp = new LinearProblem();
+	    Variable[] variable = new Variable[2];
+	    for (int iVariable=0 ; iVariable<2 ; iVariable++) {
+	        variable[iVariable] = model.newVariable("x["+iVariable+"]");
+	    }
 
-		Variable[] variable = new Variable[2];
-		for (int iVariable=0 ; iVariable<2 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
+	    LinearConstraint constraint1 = new LinearConstraint(new double[] {5,15} , new Variable[] {variable[0] , variable[1]}  , LinearConstraintType.LEQ , 480);
+	    LinearConstraint constraint2 = new LinearConstraint(new double[] {4,4}  ,  new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 160);
+	    LinearConstraint constraint3 = new LinearConstraint(new double[] {35,20}, new Variable[] {variable[0] , variable[1]}  , LinearConstraintType.LEQ , 1190);
 
-		lp.addLinearConstraintLeq(new double[] {5,15}, 	new Variable[] {variable[0] , variable[1]}	, 480);
-		lp.addLinearConstraintLeq(new double[] {4,4}, 	new Variable[] {variable[0] , variable[1]}	, 160);
-		lp.addLinearConstraintLeq(new double[] {35,20}, new Variable[] {variable[0] , variable[1]}	, 1190);
-
-		lp.addLinearObjectif(new double[] {13,23}, new Variable[] {variable[0] , variable[1]});
-		lp.setMaximizeObjective();
+	    model.addConstraint(constraint1);
+	    model.addConstraint(constraint2);
+	    model.addConstraint(constraint3);
+	    
+	    model.setListOfCosts(new double[] {13,23});
+	    model.setObjectif(Objective.MAXIMIZE);
 
 		//		double[] c = {  13.0,  23.0 };
 		//		double[] b = { 480.0, 160.0, 1190.0 };
@@ -122,24 +142,27 @@ public class LinearProblemExample {
 		//            {  4.0,  4.0 },
 		//            { 35.0, 20.0 },
 		//        };
-		test(lp);
+		test(model);
 	}
 
 	// unbounded
 	public static void test3() {
-
-		LinearProblem lp = new LinearProblem();
+	    System.out.println("test3");
+        LinearModel model = new LinearModel();
 
 		Variable[] variable = new Variable[4];
 		for (int iVariable=0 ; iVariable<4 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
+			variable[iVariable] = model.newVariable("x"+iVariable);
 		}
 
-		lp.addLinearConstraintLeq(new double[] {-2,-9,1.0,9}, 	new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , 3.0);
-		lp.addLinearConstraintLeq(new double[] {1,1,-1,-2}, 	new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , 2.0);
+		LinearConstraint constraint1 = new LinearConstraint(new double[] {-2,-9,1.0,9},   new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , LinearConstraintType.LEQ , 3.0);
+		LinearConstraint constraint2 = new LinearConstraint(new double[] {1,1,-1,-2},     new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , LinearConstraintType.LEQ , 2.0);
+		
+		model.addConstraint(constraint1);
+		model.addConstraint(constraint2);
 
-		lp.addLinearObjectif(new double[] {3.0,2.0}, new Variable[] {variable[0] , variable[1]});
-		lp.setMaximizeObjective();
+		model.setListOfCosts(new double[] {2.0,3.0,-1.0,-12.0});
+		model.setObjectif(Objective.MAXIMIZE);
 
 		//		double[] c = { 2.0, 3.0, -1.0, -12.0 };
 		//		double[] b = {  3.0,   2.0 };
@@ -147,25 +170,29 @@ public class LinearProblemExample {
 		//            { -2.0, -9.0,  1.0,  9.0 },
 		//            {  1.0,  1.0, -1.0, -2.0 },
 		//        };
-		test(lp);
+		test(model);
 	}
 
 	// degenerate - cycles if you choose most positive objective function coefficient
 	public static void test4() {
+	    System.out.println("test4");
+        LinearModel model = new LinearModel();
 
-		LinearProblem lp = new LinearProblem();
+        Variable[] variable = new Variable[4];
+        for (int iVariable=0 ; iVariable<4 ; iVariable++) {
+            variable[iVariable] = model.newVariable("x["+iVariable+"]");
+        }
 
-		Variable[] variable = new Variable[4];
-		for (int iVariable=0 ; iVariable<4 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
-
-		lp.addLinearConstraintLeq(new double[] {0.5,-5.5,-2.5,9.0}, 	new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , 0.0);
-		lp.addLinearConstraintLeq(new double[] {0.5,-1.5,-0.5,1.0}, 	new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , 0.0);
-		lp.addLinearConstraintLeq(new double[] {1.0}, 					new Variable[] {variable[0]} , 1.0);
-
-		lp.addLinearObjectif(new double[] {10.0,-57.0,-9.0,-24.0}, new Variable[] {variable[0] , variable[1], variable[2] , variable[3]});
-		lp.setMaximizeObjective();
+        LinearConstraint constraint1 = new LinearConstraint(new double[] {0.5,-5.5,-2.5,9.0},   new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , LinearConstraintType.LEQ , 0.0);
+        LinearConstraint constraint2 = new LinearConstraint(new double[] {0.5,-1.5,-0.5,1.0},   new Variable[] {variable[0] , variable[1], variable[2] , variable[3]} , LinearConstraintType.LEQ , 0.0);
+        LinearConstraint constraint3 = new LinearConstraint(new double[] {1.0},                     new Variable[] {variable[0]} , LinearConstraintType.LEQ , 1.0);
+        
+        model.addConstraint(constraint1);
+        model.addConstraint(constraint2);
+        model.addConstraint(constraint3);
+        
+		model.setListOfCosts(new double[] {10.0,-57.0,-9.0,-24.0});
+		model.setObjectif(Objective.MAXIMIZE);
 
 		//		double[] c = { 10.0, -57.0, -9.0, -24.0 };
 		//		double[] b = {  0.0,   0.0,  1.0 };
@@ -174,24 +201,27 @@ public class LinearProblemExample {
 		//            { 0.5, -1.5, -0.5, 1.0 },
 		//            { 1.0,  0.0,  0.0, 0.0 },
 		//        };
-		test(lp);
+		test(model);
 	}
 
 	// test with negative coefficient in the matrix : add equation greater than
 	public static void test5() {
+	    System.out.println("test5");
+        LinearModel model = new LinearModel();
 
-		LinearProblem lp = new LinearProblem();
-
-		Variable[] variable = new Variable[2];
-		for (int iVariable=0 ; iVariable<2 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
+        Variable[] variable = new Variable[2];
+        for (int iVariable=0 ; iVariable<2 ; iVariable++) {
+            variable[iVariable] = model.newVariable("x["+iVariable+"]");
+        }
 		
-		lp.addLinearConstraintLeq(new double[] {1.0,1.0}, 	new Variable[] {variable[0] , variable[1]} , 1.0);
-		lp.addLinearConstraintLeq(new double[] {-1.0}, 		new Variable[] {variable[0]} , -1.0);
+        LinearConstraint constraint1 = new LinearConstraint(new double[] {1.0,1.0}, new Variable[] {variable[0]  , variable[1]} , LinearConstraintType.LEQ , 1.0);
+        LinearConstraint constraint2 = new LinearConstraint(new double[] {-1.0},    new Variable[] {variable[0]} ,                LinearConstraintType.LEQ , -1.0);
 		
-		lp.addLinearObjectif(new double[] {1.0,4.0}, new Variable[] {variable[0] , variable[1]});
-		lp.setMaximizeObjective();
+        model.addConstraint(constraint1);
+        model.addConstraint(constraint2);
+		
+		model.setListOfCosts(new double[] {1.0,4.0});
+		model.setObjectif(Objective.MAXIMIZE);
 		
 		//		double[] c = { 1.0 , 4.0 };
 		//		double[] b = {  1.0, -1.0 };
@@ -199,24 +229,27 @@ public class LinearProblemExample {
 		//            { 1.0 , 1.0 },
 		//            { -1.0 , 0.0 },
 		//        };
-		test(lp);
+		test(model);
 	}
 	
 	// test with an equality equation
 	public static void test6() {
+	    System.out.println("test6");
+        LinearModel model = new LinearModel();
 
-		LinearProblem lp = new LinearProblem();
-
-		Variable[] variable = new Variable[2];
-		for (int iVariable=0 ; iVariable<2 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
+        Variable[] variable = new Variable[2];
+        for (int iVariable=0 ; iVariable<2 ; iVariable++) {
+            variable[iVariable] = model.newVariable("x["+iVariable+"]");
+        }
 		
-		lp.addLinearConstraintLeq(new double[] {1.0,1.0}, 	new Variable[] {variable[0] , variable[1]} , 1.0);
-		lp.addLinearConstraintEq(new double[] {1.0}, 		new Variable[] {variable[0]} , 1.0);
-		
-		lp.addLinearObjectif(new double[] {4.0 , 1.0}, new Variable[] {variable[0] , variable[1]});
-		lp.setMaximizeObjective();
+        LinearConstraint constraint1 = new LinearConstraint(new double[] {1.0,1.0}, new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 1.0);
+        LinearConstraint constraint2 = new LinearConstraint(new double[] {1.0},     new Variable[] {variable[0]} ,               LinearConstraintType.LEQ , 1.0);
+        
+        model.addConstraint(constraint1);
+        model.addConstraint(constraint2);
+           
+		model.setListOfCosts(new double[] {4.0 , 1.0});
+		model.setObjectif(Objective.MAXIMIZE);
 		
 		//		double[] c = { 0.0 , 4.0 };
 		//		double[] b = {  1.0, 1.0 };
@@ -224,25 +257,29 @@ public class LinearProblemExample {
 		//            { 1.0 , 1.0 },
 		//            { 1.0 , 0.0 },    equality
 		//        };
-		test(lp);
+		test(model);
 	}
 
 	// test with an equality equation
 	public static void test7() {
+	    System.out.println("test7");
+        LinearModel model = new LinearModel();
 
-		LinearProblem lp = new LinearProblem();
-
-		Variable[] variable = new Variable[2];
-		for (int iVariable=0 ; iVariable<2 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
+        Variable[] variable = new Variable[2];
+        for (int iVariable=0 ; iVariable<2 ; iVariable++) {
+            variable[iVariable] = model.newVariable("x["+iVariable+"]");
+        }
 		
-		lp.addLinearConstraintLeq(new double[] {1.0,1.0}, 	new Variable[] {variable[0] , variable[1]} , 4.0);
-		lp.addLinearConstraintEq(new double[] {1.0}, 		new Variable[] {variable[0]} , 2.0);
-		lp.addLinearConstraintEq(new double[] {1.0}, 		new Variable[] {variable[1]} , 1.0);
+        LinearConstraint constraint1 = new LinearConstraint(new double[] {1.0,1.0}, new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 4.0);
+        LinearConstraint constraint2 = new LinearConstraint(new double[] {1.0},     new Variable[] {variable[0]} ,               LinearConstraintType.LEQ , 2.0);
+        LinearConstraint constraint3 = new LinearConstraint(new double[] {1.0},     new Variable[] {variable[1]} ,               LinearConstraintType.LEQ , 1.0);
+        
+        model.addConstraint(constraint1);
+        model.addConstraint(constraint2);
+        model.addConstraint(constraint3);
 		
-		lp.addLinearObjectif(new double[] {1.0 , 2.0}, new Variable[] {variable[0] , variable[1]});
-		lp.setMaximizeObjective();
+		model.setListOfCosts(new double[] {1.0 , 2.0});
+		model.setObjectif(Objective.MAXIMIZE);
 		
 		//		double[] c = { 1.0 , 2.0 };
 		//		double[] b = { 4.0 , 2.0 , 1.0 };
@@ -251,25 +288,29 @@ public class LinearProblemExample {
 		//            { 1.0 , 0.0 },	equality
 		//            { 0.0 , 1.0 },    equality
 		//        };
-		test(lp);
+		test(model);
 	}
 	
 	// test with geq constraint
 	public static void test8() {
+	    System.out.println("test8");
+        LinearModel model = new LinearModel();
 
-		LinearProblem lp = new LinearProblem();
-
-		Variable[] variable = new Variable[2];
-		for (int iVariable=0 ; iVariable<2 ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
+        Variable[] variable = new Variable[2];
+        for (int iVariable=0 ; iVariable<2 ; iVariable++) {
+            variable[iVariable] = model.newVariable("x["+iVariable+"]");
+        }
 		
-		lp.addLinearConstraintLeq(new double[] {1.0,1.0}, 	new Variable[] {variable[0] , variable[1]} , 4.0);
-		lp.addLinearConstraintGeq(new double[] {1.0}, 		new Variable[] {variable[0]} , 2.0);
-		lp.addLinearConstraintEq(new double[] {1.0}, 		new Variable[] {variable[1]} , 1.0);
+        LinearConstraint constraint1 = new LinearConstraint(new double[] {1.0,1.0},     new Variable[] {variable[0] , variable[1]} , LinearConstraintType.LEQ , 4.0);
+        LinearConstraint constraint2 = new LinearConstraint(new double[] {1.0},         new Variable[] {variable[0]} ,               LinearConstraintType.LEQ , 2.0);
+        LinearConstraint constraint3 = new LinearConstraint(new double[] {1.0},         new Variable[] {variable[1]} ,               LinearConstraintType.LEQ , 1.0);
+        
+        model.addConstraint(constraint1);
+        model.addConstraint(constraint2);
+        model.addConstraint(constraint3);
 		
-		lp.addLinearObjectif(new double[] {1.0 , 2.0}, new Variable[] {variable[0] , variable[1]});
-		lp.setMaximizeObjective();
+		model.setListOfCosts(new double[] {1.0 , 2.0});
+		model.setObjectif(Objective.MAXIMIZE);
 		
 		//		double[] c = { 1.0 , 2.0 };
 		//		double[] b = { 4.0 , 2.0 , 1.0 };
@@ -278,18 +319,18 @@ public class LinearProblemExample {
 		//            { 1.0 , 0.0 },	geq
 		//            { 0.0 , 1.0 },    equality
 		//        };
-		test(lp);
+		test(model);
 	}
 
 	public static void randomTest(int M, int N, int seed) {
 
 		Random rand1 = new Random(seed);
-		LinearProblem lp = new LinearProblem();
+        LinearModel model = new LinearModel();
 
-		Variable[] variable = new Variable[N];
-		for (int iVariable=0 ; iVariable<N ; iVariable++) {
-			variable[iVariable] = lp.newVariable("x"+iVariable);
-		}
+        Variable[] variable = new Variable[N];
+        for (int iVariable=0 ; iVariable<N ; iVariable++) {
+            variable[iVariable] = model.newVariable("x["+iVariable+"]");
+        }
 		// creation des couts dans la fonction objective
 		double[] c = new double[N];
 		double[] b = new double[M];
@@ -299,12 +340,14 @@ public class LinearProblemExample {
 		for (int i = 0; i < M; i++) {
 			b[i] = 1001.0D * rand1.nextDouble();
 		}
+		
+		int totalNumberOfElements = 0;
 		for (int i = 0; i < M; i++) {
 
 			// creation des coefficient au hasard
 			ArrayList<ElementMatrix> line = new ArrayList<ElementMatrix>();
-			int nbElements = 1 /*+ (int) (6F *rand2.nextFloat())*/;
-			for (int j = i ; j < i+nbElements && j<N ; j++) {
+			int numberOfElements = 1 + (int) ( 24*rand1.nextFloat() / 2.0D );
+			for (int j = i ; j < i+numberOfElements && j<N ; j++) {
 				line.add(new ElementMatrix(i, j, 101.0D * rand1.nextDouble()));
 			}
 
@@ -317,15 +360,19 @@ public class LinearProblemExample {
 				listVariables[index] = variable[element.getColumnIndex()];
 				index ++;
 			}
-
-			lp.addLinearConstraintLeq(listCoefficients, listVariables, b[i]);
+			totalNumberOfElements += index;
+			
+			LinearConstraint constraint = new LinearConstraint( listCoefficients , listVariables , LinearConstraintType.LEQ , 101.0D * rand1.nextDouble() );
+			model.addConstraint(constraint);
 		}
+	    System.out.println("randomTest N="+N+"  M="+M+"  numberOfCoeff="+totalNumberOfElements);
+		
 		//
 		// creation de la fonction coût
 		//
-		lp.addLinearObjectif( c , variable );
-		lp.setMaximizeObjective();
+		model.setListOfCosts( c );
+		model.setObjectif(Objective.MAXIMIZE);
 
-		test(lp);        
+		test(model);        
 	}
 }

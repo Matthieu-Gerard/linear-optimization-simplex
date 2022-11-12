@@ -2,10 +2,10 @@ package example;
 import java.util.ArrayList;
 import java.util.Random;
 
-import analyser.SimplexSolverAnalyser;
 import model.matrix.ElementMatrix;
 import model.matrix.SparseMatrix;
-import service.SimplexSolverService;
+import service.simplex.SimplexSolverService;
+import service.solutionanalyser.SolutionAnalyserService;
 
 public class SimplexExample {
 
@@ -24,7 +24,7 @@ public class SimplexExample {
         }
 		long time2 = System.currentTimeMillis();
 		
-		SimplexSolverAnalyser analyser = new SimplexSolverAnalyser(simplex);
+		SolutionAnalyserService analyser = new SolutionAnalyserService(simplex);
 		System.out.println("optimality status = "+analyser.checkSolution());
 		System.out.println("value = " + simplex.costFunctionvalue());
 		double[] x = simplex.primalValues();

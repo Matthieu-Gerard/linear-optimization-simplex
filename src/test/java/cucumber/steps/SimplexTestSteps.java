@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import analyser.SimplexSolverAnalyser;
 import cucumber.model.SimplexConstraintLeqParameters;
 import cucumber.model.CostsParameters;
 import cucumber.model.SolutionParameters;
@@ -13,12 +12,15 @@ import exception.UnboundedLinearProblemException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import model.ToleranceConstants;
+import model.SimplexConstants;
 import model.matrix.ElementMatrix;
 import model.matrix.SparseMatrix;
-import service.SimplexSolverService;
-import service.columnselection.BlandColumnSelection;
-import service.columnselection.DantzigColumnSelection;
+import service.simplex.BlandColumnSelection;
+import service.simplex.DantzigColumnSelection;
+import service.simplex.SimplexSolverService;
+import service.solutionanalyser.SolutionAnalyserService;
+import service.solutionanalyser.SolutionState;
+import service.solutionanalyser.SolutionStateEnum;
 
 public class SimplexTestSteps {
     
@@ -109,23 +111,16 @@ public class SimplexTestSteps {
     
     @Then("^Optimal solution is found.$")
     public void solution_is_optimal() {
-        SimplexSolverAnalyser simplexSolverAnalyser = new SimplexSolverAnalyser(this.simplexSolver);
-        boolean status = simplexSolverAnalyser.checkSolution();
-        assertEquals(true, status);
-        System.out.println("SimplexTestSteps.solution_is_optimal()");
-        double[] vectorX = this.simplexSolver.primalValues();
-        for (int indexOfVariable=0 ; indexOfVariable<this.numberOfVariables ; indexOfVariable++) {
-            System.out.println("x["+indexOfVariable+"] = "+vectorX[indexOfVariable]);
-        }
-        double solutionCost = this.simplexSolver.costFunctionvalue();
-        System.out.println("solutionCost = "+solutionCost);
+        SolutionAnalyserService simplexSolverAnalyser = new SolutionAnalyserService(this.simplexSolver);
+        SolutionState status = simplexSolverAnalyser.checkSolution();
+        assertEquals(SolutionStateEnum.IS_OPTIMAL, status.getState());
     }
     
     @Then("^Solution is not optimal.$")
     public void solution_is_not_optimal() {
-        SimplexSolverAnalyser simplexSolverAnalyser = new SimplexSolverAnalyser(this.simplexSolver);
-        boolean status = simplexSolverAnalyser.checkSolution();
-        assertEquals(false, status);
+        SolutionAnalyserService simplexSolverAnalyser = new SolutionAnalyserService(this.simplexSolver);
+        SolutionState status = simplexSolverAnalyser.checkSolution();
+        assertEquals(SolutionStateEnum.IS_NOT_OPTIMAL, status.getState());
     }
     
     @Then("^Found solution is:$")
@@ -137,10 +132,10 @@ public class SimplexTestSteps {
         double[] vectorX = this.simplexSolver.primalValues();
         
         for (int indexOfVariable=0 ; indexOfVariable<this.numberOfVariables ; indexOfVariable++) {
-            assertEquals(expectedVectorX[indexOfVariable], vectorX[indexOfVariable], ToleranceConstants.EPSILON);
+            assertEquals(expectedVectorX[indexOfVariable], vectorX[indexOfVariable], SimplexConstants.EPSILON);
         }
         
         double solutionCost = solutionParameters.get(0).getSolutionCost();
-        assertEquals(solutionCost, this.simplexSolver.costFunctionvalue(), ToleranceConstants.EPSILON);
+        assertEquals(solutionCost, this.simplexSolver.costFunctionvalue(), SimplexConstants.EPSILON);
     }
 }

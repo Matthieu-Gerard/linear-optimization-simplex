@@ -1,5 +1,4 @@
 package cucumber.steps;
-/**/
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -13,14 +12,15 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import model.ColumnSelectionStrategyEnum;
-import model.ConstraintTypeEnum;
-import model.LinearConstraint;
 import model.LinearModel;
 import model.Objective;
-import model.ToleranceConstants;
+import model.SimplexConstants;
 import model.Variable;
+import model.constraint.LinearConstraint;
+import model.constraint.LinearConstraintType;
+import service.solutionanalyser.SolutionState;
+import service.solutionanalyser.SolutionStateEnum;
 
-// FIXME : do not add element with value 0.
 public class LinearModelSteps {
     
     int numberOfVariables;
@@ -56,7 +56,7 @@ public class LinearModelSteps {
         for (LinearConstraintParameters constraint : constraintCParameters) {
             double[] coefficients = constraint.getCoefficients();
             assertEquals(this.numberOfVariables, coefficients.length);
-            ConstraintTypeEnum constraintType = constraint.getConstraintType();
+            LinearConstraintType constraintType = constraint.getConstraintType();
             double value = constraint.getValue();
             
             LinearConstraint linearConstraint = new LinearConstraint(coefficients, variables, constraintType, value);
@@ -106,14 +106,14 @@ public class LinearModelSteps {
     
     @Then("^The found solution is optimal.$")
     public void solution_is_optimal() {
-        boolean status = this.solver.checkOptimality();
-        assertEquals(true, status);
+        SolutionState status = this.solver.checkOptimality();
+        assertEquals(SolutionStateEnum.IS_OPTIMAL, status.getState());
     }
     
     @Then("^The found solution is not optimal.$")
     public void solution_is_not_optimal() {
-        boolean status = this.solver.checkOptimality();
-        assertEquals(false, status);
+        SolutionState status = this.solver.checkOptimality();
+        assertEquals(SolutionStateEnum.IS_NOT_OPTIMAL, status.getState());
     }
     
     @Then("^The linear solution is:$")
@@ -123,12 +123,11 @@ public class LinearModelSteps {
         for (int variableIndex=0 ; variableIndex<numberOfVariables ; variableIndex++) {
             double expectedValue = expectedVectorX[variableIndex];
             double actualValue = this.solver.getValue(this.variables[variableIndex]);
-            assertEquals(expectedValue, actualValue, ToleranceConstants.EPSILON);
+            assertEquals(expectedValue, actualValue, SimplexConstants.EPSILON);
         }
         
         double solutionCost = solutionParameters.get(0).getSolutionCost();
         double actualCost = this.solver.getObjectiveValue();
-        assertEquals(solutionCost, actualCost, ToleranceConstants.EPSILON);
+        assertEquals(solutionCost, actualCost, SimplexConstants.EPSILON);
     }
 }
-/**/

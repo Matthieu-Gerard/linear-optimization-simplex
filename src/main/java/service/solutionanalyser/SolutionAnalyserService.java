@@ -1,15 +1,15 @@
-package analyser;
+package service.solutionanalyser;
 
-import model.ToleranceConstants;
+import model.SimplexConstants;
 import model.matrix.ElementMatrix;
 import model.matrix.SparseMatrix;
-import service.SimplexSolverService;
+import service.simplex.SimplexSolverService;
 
-public class SimplexSolverAnalyser {
+public class SolutionAnalyserService {
     
     SimplexSolverService simplex;
     
-    public SimplexSolverAnalyser(SimplexSolverService simplexSolverService) {
+    public SolutionAnalyserService(SimplexSolverService simplexSolverService) {
         this.simplex = simplexSolverService;
     }
     /**
@@ -18,24 +18,42 @@ public class SimplexSolverAnalyser {
      * (2) current solution of dual problem is feasible.
      * (3) equality: cx = yb.
      */
-    public boolean checkSolution() {
-        return isPrimalFeasible() && isDualFeasible() && isOptimal();
+    public SolutionState checkSolution() {
+        
+        SolutionState solutionState = isPrimalFeasible();
+        if (solutionState.getState()!=SolutionStateEnum.IS_PRIMAL_FEASIBLE) {
+            return solutionState;
+        }
+        
+        solutionState = isDualFeasible();
+        if (solutionState.getState()!=SolutionStateEnum.IS_DUAL_FEASIBLE) {
+            return solutionState;
+        }
+        
+        solutionState = isOptimal();
+        if (solutionState.getState()!=SolutionStateEnum.IS_OPTIMAL) {
+            return solutionState;
+        }
+        
+        return solutionState;
     }
     /**
      * Check if the current solution of the primal problem is feasible. 
      */
-    private boolean isPrimalFeasible() {
+    private SolutionState isPrimalFeasible() {
         
         SparseMatrix A = simplex.getMatrixA(); 
         double[] b = simplex.getVectorB();
-        double[] c = simplex.getCosts();
         double[] x = simplex.primalValues();
+        SolutionState solutionState = new SolutionState();
+        solutionState.setState(SolutionStateEnum.IS_PRIMAL_FEASIBLE);
         
         // check that x >= 0.
         for (int j = 0; j < x.length; j++) {
             if (x[j] < 0.0) {
-                System.out.println("x[" + j + "] = " + x[j] + " is negative");
-                return false;
+                solutionState.setState(SolutionStateEnum.IS_NOT_PRIMAL_FEASIBLE);
+                solutionState.setMessage("not primal feasible --> x[" + j + "] = " + x[j] + " is negative");
+                return solutionState;
             }
         }
 
@@ -48,63 +66,70 @@ public class SimplexSolverAnalyser {
             //          for (int j = 0; j < N; j++) {
             //              sum += A[i][j] * x[j];
             //          }
-            if (sum > b[i] + ToleranceConstants.EPSILON) {
-                System.out.println("not primal feasible");
-                System.out.println("b[" + i + "] = " + b[i] + ", sum = " + sum);
-                return false;
+            if (sum > b[i] + SimplexConstants.EPSILON) {
+                solutionState.setState(SolutionStateEnum.IS_NOT_PRIMAL_FEASIBLE);
+                solutionState.setMessage("not primal feasible --> b[" + i + "] = " + b[i] + ", sum = " + sum);
+                return solutionState;
             }
         }
-        return true;
+        
+        return solutionState;
     }
 
     /**
      * Check if the current solution of the dual problem is feasible. 
      */
-    private boolean isDualFeasible() {
+    private SolutionState isDualFeasible() {
         
         SparseMatrix A = simplex.getMatrixA(); 
         double[] c = simplex.getCosts();
         double[] dualValuesY = simplex.dualValues();
+        
+        SolutionState solutionState = new SolutionState();
+        solutionState.setState(SolutionStateEnum.IS_DUAL_FEASIBLE);
 
-        // Check that y >= 0
+        // Check that 0 <= y
         for (int i = 0; i < dualValuesY.length; i++) {
             if (dualValuesY[i] < 0.0) {
-                System.out.println("y[" + i + "] = " + dualValuesY[i] + " is negative");
-                return false;
+                solutionState.setState(SolutionStateEnum.IS_NOT_DUAL_FEASIBLE);
+                solutionState.setMessage("not dual feasible --> y[" + i + "] = " + dualValuesY[i] + " is negative");
+                return solutionState;
             }
         }
-        // Check that yA >= c
+        // Check that c <= yA
         for (int j = 0; j < c.length; j++) {
-            double sum = 0.0;
+            double sum = 0;
             for (int i = 0; i < A.getNumberofLines() ; i++) {
                 ElementMatrix element = A.getElementMatrix(i,j);
                 if (element!=null) {
                     sum += element.getValue() * dualValuesY[i];
                 }
             }
-            sum -= simplex.getInitialObjectiveValue();
             //          for (int i = 0; i < M; i++) {
             //              sum += A[i][j] * y[i];
             //          }
-            if (sum < c[j] - ToleranceConstants.EPSILON) {
-                System.out.println("not dual feasible");
-                System.out.println("c[" + j + "] = " + c[j] + ", sum = " + sum);
-                return false;
+            if (sum < c[j] - SimplexConstants.EPSILON) {
+                solutionState.setState(SolutionStateEnum.IS_NOT_DUAL_FEASIBLE);
+                solutionState.setMessage("c[" + j + "] = " + c[j] + " is greater than yA = " + sum);
+                return solutionState;
             }
         }
-        return true;
+        return solutionState;
     }
 
     /**
      * Check that both primal and dual solutions are optimal (condition: cx = yb)
      */
-    private boolean isOptimal() {
+    private SolutionState isOptimal() {
 
         double[] b = simplex.getVectorB();
         double[] c = simplex.getCosts();
         double[] primalX = simplex.primalValues();
         double[] dualY = simplex.dualValues();
         double value = simplex.costFunctionvalue();
+        
+        SolutionState solutionState = new SolutionState();
+        solutionState.setState(SolutionStateEnum.IS_OPTIMAL);
 
         // cx calculation.
         double valueOfcx = 0.0;
@@ -112,20 +137,25 @@ public class SimplexSolverAnalyser {
             valueOfcx += c[j] * primalX[j];
         }
         // yb calculation.
-        double valueOfyb = simplex.getInitialObjectiveValue();
+        double valueOfyb = 0;//-simplex.getInitialObjectiveValue();
         for (int i = 0; i < dualY.length; i++) {
-            valueOfyb += dualY[i] * b[i];
+            double dualValue = dualY[i];
+            if (simplex.getConstraintHasAnArtificialVariable().get(i)) {
+                dualValue -= SimplexConstants.BIG_M;
+            }
+            valueOfyb += dualValue * b[i];
         }
         
         // optimality test
-        if (Math.abs(value - valueOfcx) > ToleranceConstants.EPSILON || Math.abs(value - valueOfyb) > ToleranceConstants.EPSILON) {
-            System.out.println("value = " + value + ", cx = " + valueOfcx + ", yb = " + valueOfyb);
-            return false;
+        if (Math.abs(value - valueOfcx) > SimplexConstants.EPSILON || Math.abs(value - valueOfyb) > SimplexConstants.EPSILON) {
+            solutionState.setState(SolutionStateEnum.IS_NOT_OPTIMAL);
+            solutionState.setMessage("is not optimal --> value = " + value + ", cx = " + valueOfcx + ", yb = " + valueOfyb);
+            return solutionState;
         }
-        return true;
+        return solutionState;
     }
 
-    // print tableaux
+    // print tableau
     public void printTableau() {
         System.out.println("M = " + simplex.getNumberOfConstraints());
         System.out.println("N = " + simplex.getNumberOfVariables());
@@ -149,5 +179,4 @@ public class SimplexSolverAnalyser {
 //          }
 //      System.out.println();
     }
-    
 }

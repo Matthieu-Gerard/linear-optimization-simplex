@@ -1,7 +1,7 @@
 @LinearModelTest
-Feature: Tests basiques d'affectation automatique avec une ressource, deux activités chacune avec un besoin à couvrir durant une journée.
+Feature: LEQ-Minimization1VariableTest
 
-  Scenario: A- Model1VariableMinimizationBasicTest
+  Scenario: A- LEQ-Minimization1VariableTest
     Given The linear model have 1 variables.
     And The linear cost values are:
       | vector C |
@@ -17,7 +17,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 1.0      | -1.0         |
 
-  Scenario: B- Model1VariableMinimizationBasicTest
+  Scenario: B- LEQ-Minimization1VariableTest
     Given The linear model have 1 variables.
     And The linear cost values are:
       | vector C |
@@ -33,7 +33,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 1.0      | -2.0         |
 
-  Scenario: C- Model1VariableMinimizationBasicTest
+  Scenario: C- LEQ-Minimization1VariableTest
     Given The linear model have 1 variables.
     And The linear cost values are:
       | vector C |
@@ -49,7 +49,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 1.0      | -0.5         |
 
-  Scenario: D- Model1VariableMinimizationBasicTest
+  Scenario: D- LEQ-Minimization1VariableTest
     Given The linear model have 1 variables.
     And The linear cost values are:
       | vector C |
@@ -65,7 +65,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 0.0      | 0.0          |
 
-  Scenario: E- Model1VariableMinimizationBasicTest
+  Scenario: E- LEQ-Minimization1VariableTest
     Given The linear model have 1 variables.
     And The linear cost values are:
       | vector C |
@@ -81,7 +81,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 2.5      | -2.5         |
 
-  Scenario: F- Model1VariableMinimizationBasicTest
+  Scenario: F- LEQ-Minimization1VariableTest
     Given The linear model have 1 variables.
     And The linear cost values are:
       | vector C |

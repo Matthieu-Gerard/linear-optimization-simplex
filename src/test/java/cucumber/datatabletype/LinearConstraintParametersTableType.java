@@ -4,7 +4,7 @@ import java.util.Map;
 
 import cucumber.model.LinearConstraintParameters;
 import io.cucumber.java.DataTableType;
-import model.ConstraintTypeEnum;
+import model.constraint.LinearConstraintType;
 
 public class LinearConstraintParametersTableType {
 
@@ -22,17 +22,16 @@ public class LinearConstraintParametersTableType {
                 index ++;
             }
             
-            
             String type = entry.get("type");
-            ConstraintTypeEnum constraintType = null;
+            LinearConstraintType constraintType = null;
             if (type.compareTo("<=")==0) {
-                constraintType = ConstraintTypeEnum.LEQ;
+                constraintType = LinearConstraintType.LEQ;
             }
             else if (type.compareTo(">=")==0) {
-                constraintType = ConstraintTypeEnum.GEQ;
+                constraintType = LinearConstraintType.GEQ;
             }
-            else if (type.compareTo("==")==0) {
-                constraintType = ConstraintTypeEnum.EQ;
+            else if (type.compareTo("=")==0) {
+                constraintType = LinearConstraintType.EQ;
             }
             
             if (constraintType!=null) {

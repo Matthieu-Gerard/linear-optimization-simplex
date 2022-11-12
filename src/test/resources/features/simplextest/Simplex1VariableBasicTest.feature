@@ -1,7 +1,7 @@
 @SimplexTest
-Feature: Tests basiques d'affectation automatique avec une ressource, deux activités chacune avec un besoin à couvrir durant une journée.
+Feature: Simplex1VariableBasicTest
 
-  Scenario: simple instance with 1 variables et 1 constraints.
+  Scenario: A- Simplex1VariableBasicTest
     Given I have 1 variables and 1 constraints.
     And The cost values are:
       | vector C |
@@ -16,7 +16,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 1.0      | 1.0          |
 
-  Scenario: simple instance with 1 variables et 1 constraints.
+  Scenario: B- Simplex1VariableBasicTest
     Given I have 1 variables and 1 constraints.
     And The cost values are:
       | vector C |
@@ -31,7 +31,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 1.0      | 2.0          |
 
-  Scenario: simple instance with 1 variables et 1 constraints.
+  Scenario: C- Simplex1VariableBasicTest
     Given I have 1 variables and 1 constraints.
     And The cost values are:
       | vector C |
@@ -46,7 +46,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 1.0      | 0.5          |
 
-  Scenario: simple instance with 1 variables et 1 constraints.
+  Scenario: D- Simplex1VariableBasicTest
     Given I have 1 variables and 1 constraints.
     And The cost values are:
       | vector C |
@@ -61,7 +61,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 0.0      | 0.0          |
 
-  Scenario: simple instance with 1 variables et 1 constraints.
+  Scenario: E- Simplex1VariableBasicTest
     Given I have 1 variables and 1 constraints.
     And The cost values are:
       | vector C |
@@ -76,7 +76,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X | solutionCost |
       | 2.5      | 2.5          |
 
-  Scenario: simple instance with 1 variables et 1 constraints.
+  Scenario: F- Simplex1VariableBasicTest
     Given I have 1 variables and 1 constraints.
     And The cost values are:
       | vector C |

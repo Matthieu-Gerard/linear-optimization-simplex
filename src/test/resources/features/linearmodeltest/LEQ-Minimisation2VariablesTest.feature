@@ -1,7 +1,7 @@
 @LinearModelTest
-Feature: Tests basiques d'affectation automatique avec une ressource, deux activités chacune avec un besoin à couvrir durant une journée.
+Feature: LEQ-Minimisation2VariablesTest
 
-  Scenario: A- Model2VariablesMinimisationBasicTest
+  Scenario: A- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C     |
@@ -18,7 +18,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 1.0 , 2.0 | -3.0         |
 
-  Scenario: B- Model2VariablesMinimisationBasicTest
+  Scenario: B- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C     |
@@ -35,7 +35,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 2.0 , 1.0 | -3.0         |
 
-  Scenario: C- Model2VariablesMinimisationBasicTest
+  Scenario: C- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C    |
@@ -52,7 +52,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 1.0 , 0.0 | -1.0         |
 
-  Scenario: D- Model2VariablesMinimisationBasicTest
+  Scenario: D- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C    |
@@ -69,7 +69,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 0.0 , 1.0 | -1.0         |
 
-  Scenario: E- Model2VariablesMinimisationBasicTest
+  Scenario: E- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C    |
@@ -86,7 +86,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 1.0 , 1.0 | -1.0         |
 
-  Scenario: F- Model2VariablesMinimisationBasicTest
+  Scenario: F- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C   |
@@ -103,7 +103,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 0.0 , 0.0 | 0.0          |
 
-  Scenario: G- Model2VariablesMinimisationBasicTest
+  Scenario: G- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C    |
@@ -120,7 +120,7 @@ Feature: Tests basiques d'affectation automatique avec une ressource, deux activ
       | vector X  | solutionCost |
       | 2.0 , 2.0 | -2.0         |
 
-  Scenario: H- Model2VariablesMinimisationBasicTest
+  Scenario: H- LEQ-Minimisation2VariablesTest
     Given The linear model have 2 variables.
     And The linear cost values are:
       | vector C    |

@@ -1,4 +1,4 @@
-package service.columnselection;
+package service.simplex;
 
 import model.matrix.ElementMatrix;
 import model.matrix.SparseMatrix;
